@@ -1,5 +1,6 @@
 # cordova-plugin-split-view
-Native iOS Split View
+
+## Native iOS Split View
 
 
 Shows two WebViews (or an optional primary table view) framed as an iOS split view.  
@@ -502,7 +503,7 @@ Default is TRUE
 
 ## Demo
 
-- https://github.com/j-crosson/cordova-plugin-split-view-demo/main
+- https://github.com/j-crosson/cordova-plugin-split-view-demo
 
 The easiest way to run the demo is to download (or clone) the entire repo and run the project in Demo from Xcode. 
 
