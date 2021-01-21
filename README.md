@@ -525,7 +525,7 @@ Default is TRUE
 
 - https://github.com/j-crosson/cordova-plugin-split-view-demo
 
-The easiest way to run the demo is to download (or clone) the entire repo and run the project in Demo from Xcode. 
+The easiest way to run the demo is to download (or clone) the repo and run the project in Demo from Xcode. 
 
 
 The demo by default shows both the web and table view options in a modal view, supporting both light and dark mode. Typically the split view will be a root view. 
