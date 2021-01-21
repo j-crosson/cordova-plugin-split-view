@@ -321,37 +321,57 @@ cordova.plugins.SplitView.selected= onSelected;
 Present the split view as a true root view.  Using the embedded option with the plugin eliminates the startup delay of creating an extra web view. 
 Embedded split view only supports a two-webview split view.  The tableview option is not supported.  
 
+The Embedding Option requires a native app into which Cordova is embedded.  See the demo for an example.
+
+### show
+
 ```swift
 func show(_ appWindow: UIWindow)
 ```
-Summary
+**Summary**
 
 shows Split View  Controller as root view controller  of appWindow
 
-Parameters: 	appWindow    application window for split view
+**Parameters**
+| Param | Description |
+| --- | --- |
+| appWindow | application window for split view |
 
-
+***
 In the non-embedded  version,  the initial background colors of the primary and secondary views, the colors briefly displayed during WebView load,  are set by the parent WebView/Media Query.  Since the embedded case doesn’t have a parent WebView, the plugin determines light/dark mode and chooses the supplied light or dark color.  Versions of iOS that don’t support dark mode will default to light. 
+
+### setPrimaryBackgroundColor
 
 ```swift
 func setPrimaryBackgroundColor(_ light: UIColor, _ dark: UIColor) 
 ```
-Summary
-	sets primary view background color that is displayed during WebView load. 
+**Summary**
 
-Parameters
-	light  background color in light mode
-	dark  background color in dark mode
+sets primary view background color that is displayed during WebView load. 
 
- func setSecondaryBackgroundColor(_ light: UIColor, _ dark: UIColor)
+**Parameters**
+| Param | Description |
+| --- | --- |
+| light | background color in light mode |
+| dark | background color in dark mode |
 
-Summary
-	sets secondary background color that is displayed during WebView load. 
+### setSecondaryBackgroundColor
 
-Parameters
-	light  background color in light mode
-	dark  background color in dark mode
+```swift
+func setSecondaryBackgroundColor(_ light: UIColor, _ dark: UIColor)
+```
 
+**Summary**
+
+sets secondary background color that is displayed during WebView load. 
+
+**Parameters**
+| Param | Description |
+| --- | --- |
+| light | background color in light mode |
+| dark | background color in dark mode |
+
+***
 
 ### Properties
 
@@ -438,7 +458,7 @@ var rightButtonTitle: String
     embedSplit.rightButtonTitle = @“Right”;   //objective-c
     embedSplit.rightButtonTitle = “Right”     // swift
 ```
-
+***
 The Width properties are handled automatically by iOS unless overridden by the following properties:
 ***
 
