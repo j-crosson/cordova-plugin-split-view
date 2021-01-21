@@ -6,7 +6,7 @@
 Shows two WebViews (or an optional primary table view) framed as an iOS split view.  
 A classic split view consists of two related views:  a primary view and a secondary view.  The views can be displayed as columns if screen real estate permits.
 
-The plugin can simulate a Split View as root view or using the “embedding” option present the Split View as a true root view.
+The plugin can simulate a Split View as the app window's root view or using the “embedding” option present the Split View as a true root view.
 
 The [`Demo` App ](#Demo) shows the available plugin options, as well as using the plugin "embedded" (Native app with a Cordova-enabled WebView component.)
 
@@ -528,7 +528,7 @@ Default is TRUE
 The easiest way to run the demo is to download (or clone) the repo and run the project in Demo from Xcode. 
 
 
-The demo by default shows both the web and table view options in a modal view, supporting both light and dark mode. Typically the split view will be a root view. 
+The demo by default shows both the web and table view options in a modal view, supporting both light and dark mode. Typically a split view will be the app window's root view. 
 
 To run the demo that simulates a root split view, rename indexRoot.html to index.html. In index.js, un-comment the line indicated in the “root demo” comment.
 
