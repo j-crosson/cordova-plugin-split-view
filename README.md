@@ -6,11 +6,11 @@
 Shows two WebViews (or an optional primary table view) framed as an iOS split view.  
 A classic split view consists of two related views:  a primary view and a secondary view.  The views can be displayed as columns if screen real estate permits.
 
-The plugin can simulate a Split View as the app window's root view or using the “embedding” option present the Split View as a true root view.
+The plugin can simulate a split view as the app window's root view or using the “embedding” option present the split view as a true root view.
 
 The [`Demo` App ](#Demo) shows the available plugin options, as well as using the plugin "embedded" (Native app with a Cordova-enabled WebView component.)
 
-Future versions will support layout options introduced in iOS 14.
+Future versions will support split view layout options introduced in iOS 14.
 
 
 ![ ](https://raw.githubusercontent.com/j-crosson/cordova-plugin-split-view/main/images/landsc.png)
@@ -19,6 +19,14 @@ Future versions will support layout options introduced in iOS 14.
 ## Installation
 ```bash
 cordova plugin add cordova-plugin-split-view
+```
+
+## Configuration
+
+Auto hiding of splash screen needs to be disabled in config.xml
+
+```
+<preference name="AutoHideSplashScreen" value="false" />
 ```
 
 ## Parent view methods
@@ -318,7 +326,7 @@ cordova.plugins.SplitView.selected= onSelected;
 ## Embedding Option
 
 
-Present the split view as a true root view.  Using the embedded option with the plugin eliminates the startup delay of creating an extra web view. 
+Present the split view as a true root view.  Using the Embedding Option with the plugin eliminates the startup delay of creating an extra web view. 
 Embedded split view only supports a two-webview split view.  The tableview option is not supported.  
 
 The Embedding Option requires a native app into which Cordova is embedded.  See the demo for an example.
@@ -532,10 +540,9 @@ The demo by default shows both the web and table view options in a modal view, s
 
 To run the demo that simulates a root split view, rename indexRoot.html to index.html. In index.js, un-comment the line indicated in the “root demo” comment.
 
-To demo the Split View as an actual root view, in the file AppDelegate.m comment out the current code and use the code that is currently commented out.
+To demo the Split View as an actual root view, in the file AppDelegate.m comment out the current code and use the code that is currently commented out. A real app would be structured differently: the embedding demo was constructed to fit in a Cordova-generated app. 
 
-
-Here’s the Demo code that launches the embedded split view:
+Here’s the demo code that launches the embedded split view:
 
 
 ```objective-c
