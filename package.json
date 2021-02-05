@@ -1,6 +1,6 @@
 {
   "name": "cordova-plugin-splitview",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Native iOS Split View",
   "cordova": {
     "id": "cordova-plugin-splitview",
@@ -26,7 +26,7 @@
     "cordovaDependencies": {
       "1.0.0": {
         "cordova": ">9.0.0",
-        "cordova-ios": "6.1.1"
+        "cordova-ios": ">=6.1.1"
       }
     }
   },

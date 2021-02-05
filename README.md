@@ -1,4 +1,4 @@
-# cordova-plugin-split-view
+# cordova-plugin-splitview
 
 ## Native iOS Split View
 
@@ -18,7 +18,7 @@ Future versions will support split view layout options introduced in iOS 14.
 
 ## Installation
 ```bash
-cordova plugin add cordova-plugin-split-view
+cordova plugin add cordova-plugin-splitview
 ```
 
 ## Configuration
