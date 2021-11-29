@@ -72,6 +72,19 @@ SplitView.prototype.onMessage = function(item) {
 };
 
 
+//
+// view event handler
+//
+SplitView.prototype.onAction = function(event,data){
+        this.action(event,data);
+};
+
+
+SplitView.prototype.viewEvents ={
+    buttonEvent:    "0",
+    tabBarEvent:    "1",
+};
+
 
 // The following is Classic View Only
 

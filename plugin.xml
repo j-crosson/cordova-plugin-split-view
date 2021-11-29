@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<plugin id="cordova-plugin-splitview" version="2.0.0" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
+<plugin id="cordova-plugin-splitview" version="2.1.0" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
     <name>SplitView</name>
     <engines>
         <engine name="cordova-ios" version=">=6.2.0" />
@@ -20,6 +20,7 @@
         <header-file src="src/ios/SplitBridge.h" type="BridgingHeader" />
         <source-file src ="src/ios/SplitView.swift" />
         <source-file src ="src/ios/TabBar.swift" />
+        <source-file src ="src/ios/Image.swift" />
         <source-file src ="src/ios/RootView.swift" />
         <source-file src ="src/ios/RootViewClassic.swift" />
         <source-file src ="src/ios/SplitChildViews.swift" />
