@@ -5,6 +5,13 @@
 
 ## What’s New
 
+## 2.2
+* Large Navigation Bar Titles in Primary View
+* Navigation Bar for Compact Tab View
+* Tab Bar Appearance options
+* Scrollbar  options
+* iOS 15 Appearance updates
+
 ## 2.1
 * Navigation Bar buttons and context menus. 
 * Additional tab bar options, updated interface
@@ -22,8 +29,9 @@ Classic split view will be supported as long as it is supported by Apple but all
 
 ## What’s Ahead
 
-* TableView Option Replacement
 * Additional Documentation
+* Additional Compact View options
+* TableView Option Replacement
 * Remove 6 tab limit and support “more” in TabView
 
 
@@ -60,6 +68,29 @@ See Apple’s UISplitViewController documentation for a more detailed explanatio
 
 See Classic Split View to support pre-iOS14 devices.
 
+## Quirks
+
+The plug-in hides quirky behavior as much as possible but there are issues that resist being hidden.
+
+Large titles, insets, and Scroll Edge behavior are trouble spots.
+
+In this version, large-title navigation bars are limited to the primary view or compact-view tabs.
+
+Compact Tab Bar views need to set the initial bar appearance after which the plug-in manages appearance.
+
+**Horizontal Scroll Bars and scrolling**
+
+In some cases, despite what CSS dictates, horizontal scrolling is enabled and horizontal scroll bars may appear ( the content will snap back in to place, but the process is visually unappealing). There are two attributes that prevent this behavior: “horizScrollBarInvisible” and “preventHorizScroll”.  One makes the bar invisible, the other prevents horizontal scrolling.
+
+**CSS html vs body**
+
+Side effects of styling choices can cause navigation bar appearance issues that don’t happen in a normal full-view app (which doesn’t have the bars).  Styling “body” instead of “html” seems to avoid most of these issues.
+
+**Compact View Tabs**
+
+The compact view is a single webView that is moved between tabs.  WebView Content is updated on tab selection.  When switching between tabs that have Large Titles, scroll-to-top is necessary after a transition from a scrolling to a non-scrolling view.   See the Demo App for an example.
+
+
 
 
 
@@ -83,6 +114,10 @@ The plug-in has the option of using a TabView for the Compact Size. The view wil
 ## Navigation Bar Buttons
 
 Left and right buttons on the Navigation Bar are supported. Both buttons support text and systemItems (system-supplied images), images, SF Symbols, and context menus.  The left button can be relocated to avoid conflict.  
+
+## Navigation Bar Appearance
+
+Large Titles are supported in the Primary View and in the Compact Tab View .
 
 ## iOS 14 and later Methods
 
@@ -177,6 +212,22 @@ Select tab on bar
 | success | Function | Success callback function|
 | error | Function | Error callback |
 
+### viewAction
+```javascript
+cordova.plugins.SplitView.viewAction(action,success, error)
+```
+
+perform Split View Action
+
+| Param | Type | Description |
+| --- | --- | --- |
+| action | String |  action  to perform |
+| success | Function | Success callback function|
+| error | Function | Error callback |
+
+Currently there is a single action:
+
+dismiss — dismiss Split View
 
 
 ## Event Handling
@@ -345,6 +396,9 @@ viewPropJSON = '{"primaryTitle":"Primary", "secondaryTitle":"Secondary","fullscr
 | barTintColor | Array | Sets Navigation Bar bar tint color (bar background) | |
 | topColumnForCollapsingTo ProposedTopColumn | String | Provides the column to display after the split view interface collapses | |
 | displayModeForExpandingTo ProposedDisplayMode | String | Provides the display mode to use after the split view interface expands | |
+| horizScrollBarInvisible | Bool | makes horizontal scroll bar invisible without disabling scrolling | |
+| vertScrollBarInvisible | Bool | makes vertical scroll bar invisible without disabling scrolling | |
+| preventHorizScroll | String | Prevents  horizontal scrolling , scrollbar remains| |
 
 
 
@@ -541,7 +595,7 @@ See Apple UISplitViewController Documentation for additional info.
 
 
 
-**presentsWithGesture**
+**showsSecondaryOnlyButton**
 
 This only applies to tripleColumn display.
 Secondary view  shows a secondary-only display-mode toggle button
@@ -551,7 +605,7 @@ Type:   Bool
 The default is false.
 
 ```javascript
-viewPropJSON = '{"presentsWithGesture”:false }';
+viewPropJSON = '{"showsSecondaryOnlyButton”:true }';
 ```
 
 See Apple UISplitViewController Documentation for additional info.
@@ -771,6 +825,8 @@ Type:   Array
 
 [Red,Green,Blue,Alpha]
 
+Values
+
 Red,Green,Blue               0-255  
 Alpha   transparency value   0-1 
 
@@ -786,6 +842,8 @@ Sets Navigation Bar  tint color (bar text etc.)
 Type:   Array
 
 [Red,Green,Blue,Alpha]
+
+Values
 
 Red,Green,Blue               0-255  
 Alpha   transparency value   0-1 
@@ -805,6 +863,8 @@ Sets Navigation Bar bar tint color (bar background)
 Type:   Array
 
 [Red,Green,Blue,Alpha]
+
+Values
 
 Red,Green,Blue               0-255  
 Alpha   transparency value   0-1 
@@ -867,16 +927,91 @@ viewPropJSON = '{"displayModeForExpandingToProposedDisplayMode":"oneOverSecondar
 
 See Apple UISplitViewControllerDelegate Documentation for additional details.
 
+**horizScrollBarInvisible**
+
+Makes horizontal scroll bar invisible without disabling scrolling
+
+Type:   Bool
+
+The default is False.
+
+```javascript
+viewPropJSON = '{"horizScrollBarInvisible":true }';
+```
+
+**vertScrollBarInvisible**
+
+Makes vertical scroll bar invisible without disabling scrolling
+
+Type:   Bool
+
+The default is False.
+
+```javascript
+viewPropJSON = '{"vertScrollBarInvisible":true }';
+```
+
+**preventHorizScroll**
+
+ Prevents  horizontal scrolling , scrollbar remains
+
+Type:   Bool
+
+The default is False.
+
+```javascript
+viewPropJSON = '{"preventHorizScroll":true }';
+```
 
 
 **Compact View TabBar Properties**
 
-Tab Bars have been both simplified and extended for 2.1.  2.1 TabBars are not compatible with the 2.0 version.  
+Tab Bars have been both simplified and extended for 2.1.  2.1 TabBars are not compatible with the 2.0 version.
+2.2  TabBars are extended but compatible with 2.1.
 
 | Property | Type | Description | Default |
 | --- | --- | --- | --- | 
-| tabBarItems | TabBarItem| TabBar properties |   | 
+| tabBar | TabBar| TabBar properties |   | 
+| tabBarItems | TabBarItem| TabBar Item properties |   | 
+| tabItemsAppend | Array| Modifies selected-item message |   | 
 | selectedTabIndex | Number| set tab index | 0  | 
+
+**tabBar**
+
+TabBar properties
+
+| Property | Type | Description | Default |
+| --- | --- | --- | --- | 
+| tabBarAppearance | TabBarAppearance | Appearance options |   | 
+
+
+```javascript
+viewPropJSON = ''{ "tabBar": {"tabBarAppearance": {"background": "transparent", "lockBackground": true} }}';
+```
+
+**tabBarAppearance**
+
+Appearance options
+
+| Property | Type | Description | Default |
+| --- | --- | --- | --- | 
+| background | String| appearance properties |   | 
+| lockBackground | Bool| lock appearance |   | 
+
+
+**background**
+
+We are setting the transparency/opacity of the tab bar background.  The plug-in or the OS manages this most of the time—depends on the scroll state—but we can set the initial state or lock the state permanently with “lockBackground”
+
+Values:
+
+transparent    — transparent background
+opaque           — current-theme-specific opaque colors
+default            — default background
+
+**lockBackground**
+
+Locks the background selection regardless of scroll state. Normally, there is a scrollEdgeAppearance for fully scrolled content and a standardAppearance for partially scrolled content.
 
 
 
