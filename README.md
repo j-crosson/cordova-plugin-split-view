@@ -3,7 +3,20 @@
 ## Native iOS Split View
 
 
+## iOS Split View
+
+An iOS split view is a container that manages two or three child columns. 
+The plugin creates a split view and the child views, supplying each with a WebView. Child WebViews can manage the split view and communicate with each other. 
+
+
 ## What’s New
+
+## 2.3
+* Collection View List (replaces classic-view TableView option)
+
+![ ](https://raw.githubusercontent.com/j-crosson/cordova-plugin-split-view/main/images/collectionViewFull.png)
+
+* Bug fixes
 
 ## 2.2
 * Large Navigation Bar Titles in Primary View
@@ -23,15 +36,16 @@
 * Similar behavior for embedding and non-embedding cases.
 
 
-Except for the classic split view, this version no longer supports the TableView option .  A future version will include a more modern replacement. 
+Except for the classic split view, this version no longer supports the TableView option.  Newer versions use a CollectionView. 
 Classic split view will be supported as long as it is supported by Apple but all future plug-in development will target the iOS14+ version .   
 
 
 ## What’s Ahead
 
-* Additional Documentation
+* Additional and revised documentation
+* Additional layout options
 * Additional Compact View options
-* TableView Option Replacement
+* Update and expand event handling
 * Remove 6 tab limit and support “more” in TabView
 
 
@@ -49,14 +63,6 @@ Auto hiding of splash screen needs to be disabled in config.xml
 <preference name="AutoHideSplashScreen" value="false" />
 ```
 
-
-## iOS Split View
-
-An iOS split view is a container that  manages  two or three child columns. 
-The plugin creates a split view and the child views, supplying each with a WebView. Child WebViews can manage the split view and communicate with each other. 
-
-
-
 ## Getting Started
 
 The best way is to build the Demo App. The demo shows both new and classic view options: two column, three column, and tab-bar compact.  Buttons and menus too.
@@ -67,6 +73,63 @@ See Apple’s UISplitViewController documentation for a more detailed explanatio
 
 
 See Classic Split View to support pre-iOS14 devices.
+
+To present a Split View (post-iOS14), first create view properties.
+
+For example:
+
+```javascript
+viewPropJSON = 
+'{
+  "fullscreen":true,
+  "primaryTitle": "Primary",
+  "primaryURL": "doublePrimary.html",
+  "secondaryTitle": "Secondary",
+  "secondaryURL": "doubleSecondary.html",
+  "style": "doubleColumn",
+  "topColumnForCollapsingToProposedTopColumn": "primary",
+  "preferredSplitBehavior": "automatic",
+  "preferredDisplayMode": "twoBesideSecondary",
+  "primaryEdge": "leading",
+  "backgroundColor": [
+    228,
+    228,
+    228,
+    1
+  ]
+}'
+```
+
+Many properties, but in most cases the defaults work just fine.  After creating the properties, show the Split View:
+
+```javascript
+  cordova.plugins.SplitView.showView(viewPropJSON,viewPropPrimary,viewPropSecondary,viewPropSup,viewPropCompact,null,null);
+```
+
+The child views have to initilize message and event handling.  
+
+For example:
+
+```javascript
+function onDeviceReady() {
+    navigator.splashscreen.hide();
+    cordova.plugins.SplitView.message = recievedMessage;
+    cordova.plugins.SplitView.action = handleEvents;
+}
+
+function recievedMessage(item) {
+    selectItem(item);
+}
+
+function handleEvents(event,data) {
+    if((event === cordova.plugins.SplitView.viewEvents.buttonEvent) && (data === "rightTap")) {
+        //do something
+    }
+}
+
+The plugin sets the version of Swift to 4.0, the minimum needed.  Bumping the version to Swift 5 will produce smaller/faster code.
+
+```
 
 ## Quirks
 
@@ -98,7 +161,7 @@ The compact view is a single webView that is moved between tabs.  WebView Conten
 
 **Compact Size Class and TabView**
 
-There are two size classes: Regular, which you would find on a large device such as an iPad or an iPhone 11 in landscape, and Compact which you would find on smaller device or an iPad running multiple apps in a split screen. 
+There are two size classes: Regular, which you would find on a large device such as an iPad or a large iPhone in landscape, and Compact which you would find on smaller device or an iPad running multiple apps in a split screen. 
 
 The plug-in has the option of using a TabView for the Compact Size. The view will dynamically switch to/from a split view as the Size Class changes.  For example, when an iPhone 11 is rotated from portrait to landscape or when a second app is launched on an iPad. 
 
@@ -110,6 +173,15 @@ The plug-in has the option of using a TabView for the Compact Size. The view wil
 **Compact size**
 
 ![ ](https://raw.githubusercontent.com/j-crosson/cordova-plugin-split-view/main/images/compactiPad.png)
+
+## Collection View List
+
+Provides a scrollable list of selectable items organized as collapsable sections.  
+This version only supports a list with "sidebar" style in the primary view. The Collection View List replaces the TableView used by Classic Split View for apps targeting iOS14 and above. 
+
+On item selection, the view fires a "collectionEvent" which sends a "selectedListItem" to property-specified views. An item can be selected programmatically via the "setCollectionProperty" viewAction. Since a "collectionEvent" is not fired if an item is selected programmatically, a "fireCollectionEvent" viewAction can be used to notify other views that a selection has occured.
+
+![ ](https://raw.githubusercontent.com/j-crosson/cordova-plugin-split-view/main/images/collectionViewFull.png)
 
 ## Navigation Bar Buttons
 
@@ -189,6 +261,10 @@ Set properties on Split View child view.  Some properties can only be set on cre
 | error | Function | Error callback |
 
 
+```javascript
+let viewProps ='{ "barButtonRight": {"type":"system","identifier": "rightTap","title":"'+testButtonOptions[testButtonIndex]+'"} }';
+cordova.plugins.SplitView.setProperties(viewProps,null,null);
+```
 
 ### initChild  
 ```javascript
@@ -212,33 +288,125 @@ Select tab on bar
 | success | Function | Success callback function|
 | error | Function | Error callback |
 
-### viewAction
+
+## viewAction
 ```javascript
-cordova.plugins.SplitView.viewAction(action,success, error)
+cordova.plugins.SplitView.viewAction(action,targets,data,success, error)
 ```
 
 perform Split View Action
 
-| Param | Type | Description |
+Performs actions such as dismissing views and triggering events.
+
+| Param | Type | Description | Default |
+| --- | --- | --- |--- |
+| action | String |  action  to perform | |
+| targets | [String] |  action  targets | [self] |
+| data | [String] |  action  data | [""]|
+| success | Function | Success callback function| null |
+| error | Function | Error callback | null|
+
+actions:
+
+**dismiss** 
+
+Dismiss Split View
+
+This action will do nothing if the split view is the root view, otherwise return to root view. 
+
+```javascript
+cordova.plugins.SplitView.viewAction("dismiss");
+```
+
+**setCollectionProperty**
+
+Sets Collection View properties
+
+Selects an item Section and Row and optionally scrolls to selected position.
+
+The Collection View is currently limited to the primary view: the only valid target is "primary"
+
+ 
+  
+
+ 
+   data:  JSON   
+   
+| Select | Type | Description | Default |
+| --- | --- | --- | --- | 
+| section | Int| Select Section | | 
+| row | Int| Select Row | | 
+| scrollPosition | String| Scroll to Position | none| 
+
+
+
+| scrollPosition | Description |
+| --- | --- |
+| none | don't scroll |
+| top | position item at top |
+| bottom | position item at bottom |
+| centeredVertically | center item vertically |
+   
+ 
+
+
+```javascript
+// Select section one row two and center vertically 
+let section = 1;
+let row = 2;
+let scrollPosition = "centeredVertically"
+let msgJSON = '{"id": "selectListItem", "select": { "section": '+ section +' , "row": '+ row +' ,"scrollPosition": "' + scrollPosition + '" }}';
+cordova.plugins.SplitView.viewAction("setCollectionProperty", ["primary"],[msgJSON]);
+```
+
+
+
+
+
+**fireCollectionEvent**
+
+Fires a colloctionView event
+
+Supported events:
+
+ *   collectionEvents.selectedListItem 
+ 
+ Fires a list-item-selected event, identical to the event generated when a user makes a selection.
+ This is useful when an item is programmatically selected in which case the collectionView does not fire a "selected" event.
+ 
+
+| Event Data | Type | Description |
 | --- | --- | --- |
-| action | String |  action  to perform |
-| success | Function | Success callback function|
-| error | Function | Error callback |
+| id | Int| event ID |   
+| select | Select| Selection Data |   
 
-Currently there is a single action:
 
-dismiss — dismiss Split View
+| Select | Type | Description |
+| --- | --- | --- | 
+| section | Int| Selected Section | 
+| row | Int| Selected Row | 
+
+
+
+```javascript
+let section = 1;
+let row = 2;
+let msg1JSON = '{"id": "' + cordova.plugins.SplitView.collectionEvents.selectedListItem + '", "select": { "section": '+ section +' , "row": '+ row +' }}';
+cordova.plugins.SplitView.viewAction("fireCollectionEvent", ["secondary"],[msg1JSON]);
+```
+
 
 
 ## Event Handling
 
 Events are generated by button taps, menu item selection, etc. 
-A single event handler handles all events.  It has to be set up—usually in onDeviceReady—before use.
+A single event handler handles all events.  Handler is initilized—usually in onDeviceReady—before use.
 
-There are currently two types of event supported:
+Supported events:
 
-buttonEvent
-tabBarEvent
+* viewEvents.buttonEvent
+* viewEvents.tabBarEvent
+* viewEvents.collectionEvent
 
 
 ### Event Handler
@@ -251,26 +419,73 @@ function(event,data)
 | data | String | event-specific data |
 
 
-**viewEvents**
+**buttonEvent**
+
+Event target is WebView associated with button.
 
 Values
 
 viewEvents.buttonEvent
 
-	event generated by button tap or button context menu item selection
+	Event generated by button tap or button context menu item selection.
 
 data: 
 	
 	“identifier” value set on item creation 
 
 
+**tabBarEvent**
+
+Event target is WebView associated with tabBar.
+
 viewEvents.tabBarEvent
 
-	event generated on tab bar item selection
+	Event generated on tab bar item selection.
 
 data: 
 
 	“tag” item set on tab creation  represented as a string.
+
+
+**collectionEvent**
+
+viewEvents.collectionEvent
+
+    Events generated by a Collection View.
+
+
+Currently there is one Collection View event:
+
+*   collectionEvents.selectedListItem
+
+This event is generated when the user selects a List item.
+View properties determine event-target views.  
+A view can construct and send this event to a other views.
+This is necessary because this event is not fired if an item is selected programmatically
+
+data: 
+
+    JSON   
+ 
+| Event Data | Type | Description |
+| --- | --- | --- |
+| id | Int| event ID |   
+| select | Select| Selection Data |   
+
+
+| Select | Type | Description |
+| --- | --- | --- | 
+| section | Int| Selected Section | 
+| row | Int| Selected Row | 
+
+
+```javascript
+if (event === cordova.plugins.SplitView.viewEvents.collectionEvent) {
+    const jsonMsg = JSON.parse(data);
+    if(jsonMsg.id ===  cordova.plugins.SplitView.collectionEvents.selectedListItem)
+        displaySelection( jsonMsg.select.row,jsonMsg.select.section);
+}
+```
 
 
 
@@ -293,6 +508,27 @@ function handleEvents(event,data) {
     }
 }
 ```
+
+Plugin events are independent of Javascript Events. To link the two, Javascript Events can be created:
+
+```javascript
+
+const theEvent= new Event("theEvent");  //or new CustomEvent
+document.addEventListener("theEvent",e => {
+//do something
+})
+```
+The event is syncronously fired by the following:
+
+```javascript
+document.dispatchEvent(theEvent);
+```
+
+
+
+
+
+
 
 ## Inter-view Messaging
 
@@ -369,6 +605,7 @@ viewPropJSON = '{"primaryTitle":"Primary", "secondaryTitle":"Secondary","fullscr
 | secondaryURL | String | URL of Secondary View  | secondary.html |
 | supplementaryURL | String | URL of Supplementary View| supplementary.html | 
 | compactURL | String | URL of Compact View | compact.html | 
+| viewConfig | ViewConfig | View Configuration |  | 
 | primaryTitle | String | Primary view NavigationBar title |  | 
 | secondaryTitle | String | Secondary view NavigationBar title |  | 
 | supplementaryTitle | String | Supplementary view NavigationBar title |  | 
@@ -450,6 +687,25 @@ The default is “compact.html”
 
 ```javascript
 viewPropJSON = '{"compactURL”:”tabs.html" }';
+```
+
+**ViewConfig**
+
+Configuration of views.
+
+The default is to use webViews for all views. 
+Currently, ViewConfig's only supported use is to specify a collectionList as the primary view, otherwise this property can be omitted.
+
+
+| Property | Type | Description | Default |
+| --- | --- | --- | --- | 
+| primary | String | Primary view type | webView  | 
+| secondary | String | Secondary view type | webView  | 
+| supplementary | String | Supplementary view type | webView  | 
+
+
+```javascript
+viewPropJSON = '{ "viewConfig": {"primary": "collectionList" }}';
 ```
 
 
@@ -964,7 +1220,117 @@ viewPropJSON = '{"preventHorizScroll":true }';
 ```
 
 
-**Compact View TabBar Properties**
+## Native View (Collection View) Properties 
+
+Collection View List as a Primary View is the only option currently supported.
+
+| Property | Type | Description | 
+| --- | --- | --- | 
+| views | Views | Native View configuration data |  
+
+**Views**
+
+Configuration info for views which don't contain a WebView
+
+| Property | Type | Description | 
+| --- | --- | --- | 
+| primaryCollection | Collection | Primary collectionView initilization | 
+
+
+**Collection**
+
+Section data and configuration of Collection View
+
+| Property | Type | Description | 
+| --- | --- | --- | 
+| sections | [Section] | Section data | 
+| config | CollectionConfig | collectionView configuration | 
+
+**Section**
+
+Section header and List Items of Collection View
+
+| Property | Type | Description | 
+| --- | --- | --- | 
+| header | String | Section header text | 
+| listItems | [ListItem] | Section items | 
+
+**ListItem**
+
+Item text and images
+
+| Property | Type | Description | 
+| --- | --- | --- | 
+| listImage | Image |Item image | 
+| listText | String | Item text | 
+
+**CollectionConfig**
+
+| Property | Type | Description | Default |
+| --- | --- | --- | --- | 
+| type | String |type of collectionView | List View |  
+| initialSection | Int | Initial section selection | 0 |
+| initialRow | Int | Initial row selection | 0 |
+| clearsSelection | Bool | clears selection when view appears | false |
+| messageTargets | [String] | Target views for events | |
+
+**type**
+
+Currently ignored:  the only type available is "List View"
+
+**initialSection**
+
+Initial selected section
+
+**initialRow**
+
+Initial selected row
+
+**clearsSelection**
+
+Clears selection when view appears 
+
+**messageTargets**
+
+Target views for events.  "primary" is not a valid target
+
+Values:
+
+secondary    
+supplementary          
+compact            
+
+
+```javascript
+viewPropJSON = '{
+"views":{
+   "primaryCollection":{
+      "config":{
+         "initialSection":0,
+         "initialRow":0,
+         "messageTargets":[
+            "compact",
+            "secondary"
+         ]
+      },
+      "sections":[
+         {
+            "listItems":[
+               {
+                  "listImage":{
+                     "type":"symbol",
+                     "name":"play.circle"
+                  },
+                  "listText":"Listen Now"
+               }
+            ]
+         ]
+      }
+   }}';
+
+```
+
+## Compact View TabBar Properties
 
 Tab Bars have been both simplified and extended for 2.1.  2.1 TabBars are not compatible with the 2.0 version.
 2.2  TabBars are extended but compatible with 2.1.
@@ -1493,7 +1859,7 @@ viewPropJSON = '{"attributes": ["destructive"]}';
 
 Embeds plugin in a native app.  Using the Embedding Option with the plugin creates a hybrid app and eliminates the startup delay of creating an extra web view. 
 
-The Embedding Option requires a native app into which Cordova is embedded.  See the Embedding Demo for an example.
+The Embedding Option requires a native app into which Cordova is embedded.  See the Embedding Demo for an example.  See "Embedding Option — Classic Split View" to embed pre-iOS 14 classic views.
 
 
 
@@ -1557,7 +1923,7 @@ var splitViewController: RtViewController
 
 RtViewController is the root view controller which exposes subviews for  modification above and beyond what the Javascript API offers.
 
-
+By default, all orientations are supported.  RtViewController accepts an optional UIInterfaceOrientationMask argument for other than default orientaion support. 
 
 
 To demo the embedded Split View, in the SplitDemo file AppDelegate.m comment out the current code and use the code that is currently commented out.  Post-iOS 14 multi-column Demo for the new stuff, Classic for the old.   A real app would be structured differently: the embedding demo was constructed to fit in a Cordova-generated app. 

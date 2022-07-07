@@ -67,8 +67,8 @@ SplitView.prototype.selectTab = function ( tab, success, error) {
 // viewAction
 //
         
-SplitView.prototype.viewAction = function ( action, success, error) {
-    exec(success, error, 'SplitView', 'viewAction', [action]);
+SplitView.prototype.viewAction = function ( action, targets = ["self"], data = [""],success = null, error = null) {
+    exec(success, error, 'SplitView', 'viewAction', [action,targets,data]);
 };
 
 //
@@ -91,7 +91,12 @@ SplitView.prototype.onAction = function(event,data){
 SplitView.prototype.viewEvents ={
     buttonEvent:    "0",
     tabBarEvent:    "1",
+    collectionEvent:  "2"
 };
+
+SplitView.prototype.collectionEvents ={
+    selectedListItem:    "0",
+    };
 
 
 // The following is Classic View Only
