@@ -6,7 +6,6 @@ var PLUGIN_NAME = 'SplitView';
 var SplitView = function() {};
 
 
-
 //
 // create and show split view
 //
@@ -66,7 +65,7 @@ SplitView.prototype.selectTab = function ( tab, success, error) {
 //
 // viewAction
 //
-        
+
 SplitView.prototype.viewAction = function ( action, targets = ["self"], data = [""],success = null, error = null) {
     exec(success, error, 'SplitView', 'viewAction', [action,targets,data]);
 };
@@ -91,7 +90,8 @@ SplitView.prototype.onAction = function(event,data){
 SplitView.prototype.viewEvents ={
     buttonEvent:    "0",
     tabBarEvent:    "1",
-    collectionEvent:  "2"
+    collectionEvent:  "2",
+    barItemSelected:  "3"
 };
 
 SplitView.prototype.collectionEvents ={

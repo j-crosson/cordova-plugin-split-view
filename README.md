@@ -11,6 +11,13 @@ The plugin creates a split view and the child views, supplying each with a WebVi
 
 ## What’s New
 
+## 2.4
+
+* New inset options
+* Hide-Navigation-Bar option
+* New TabBar options
+
+
 ## 2.3
 * Collection View List (replaces classic-view TableView option)
 
@@ -47,6 +54,7 @@ Classic split view will be supported as long as it is supported by Apple but all
 * Additional Compact View options
 * Update and expand event handling
 * Remove 6 tab limit and support “more” in TabView
+* Multiple WebViews in TabView
 
 
 
@@ -62,6 +70,8 @@ Auto hiding of splash screen needs to be disabled in config.xml
 ```
 <preference name="AutoHideSplashScreen" value="false" />
 ```
+
+The plugin as shipped enables the minimum supported version of Swift.  Unless it is necessary to use this version (4.0) it is strongly recommended to build with Swift 5.
 
 ## Getting Started
 
@@ -137,33 +147,89 @@ The plug-in hides quirky behavior as much as possible but there are issues that 
 
 Large titles, insets, and Scroll Edge behavior are trouble spots.
 
-In this version, large-title navigation bars are limited to the primary view or compact-view tabs.
+In this version, large-title navigation bars are mostly limited to the primary view or compact-view tabs.
 
 Compact Tab Bar views need to set the initial bar appearance after which the plug-in manages appearance.
 
 **Horizontal Scroll Bars and scrolling**
 
-In some cases, despite what CSS dictates, horizontal scrolling is enabled and horizontal scroll bars may appear ( the content will snap back in to place, but the process is visually unappealing). There are two attributes that prevent this behavior: “horizScrollBarInvisible” and “preventHorizScroll”.  One makes the bar invisible, the other prevents horizontal scrolling.
+In some cases, despite what CSS seems to dictate, horizontal scrolling is enabled and horizontal scroll bars may appear (the content will snap back in to place, but the process is visually unappealing). There are two attributes that prevent this behavior: “horizScrollBarInvisible” and “preventHorizScroll”.  One makes the bar invisible, the other prevents horizontal scrolling.
 
 **CSS html vs body**
 
-Side effects of styling choices can cause navigation bar appearance issues that don’t happen in a normal full-view app (which doesn’t have the bars).  Styling “body” instead of “html” seems to avoid most of these issues.
+Side effects of styling choices can cause navigation bar and scroll bar appearance issues that don’t happen in a normal full-view app (which doesn’t have navigation bars).  See the Demo App for examples.
 
 **Compact View Tabs**
 
-The compact view is a single webView that is moved between tabs.  WebView Content is updated on tab selection.  When switching between tabs that have Large Titles, scroll-to-top is necessary after a transition from a scrolling to a non-scrolling view.   See the Demo App for an example.
+The compact view is a single webView that is moved between tabs.  WebView Content is updated on tab selection.  When switching between tabs that have Large Titles, scroll-to-top is sometimes necessary after a transition from a scrolling to a non-scrolling view.  Future versions of the plugin will support multiple tab webviews which will make tab transitions easier to manage.  See the Demo App for an example.
+
+**Launch Image**
+
+If launch images are missing, some configurations will initially display incorrectly. 
+
+## Large Titles, Insets, and Scrolling
+
+With a small-title view, everything pretty much just works. Large-title views open a Pandora's Box of edge conditions, special cases and strange behavior.  
+
+### Large Titles
+
+Large Titles can be used in any tab of a compact tab view. They can also be used in all split views (Primary, Secondary, and Supplimentary) if a TabView is used for the compact case.  If an app doesn't have a separate compact view then Large Titles are limited to the primary view unless all titles are large and never change (by scrolling, for example.)
+
+### Insets
+
+The plugin partially handles inset behavior which roughly speaking is the process of shrinking content to accomodate safe areas, large navigation bar titles, and the like. There are, however, inset management choices that affect webview behavior. There are three ways we deal with insets: the contentInsetAdjustmentBehavior property, the viewport-fit=cover property of the "viewport" meta tag, and the set of "safe-area-inset-" css environment variables.
+
+What we're concerned with is the way in which insets affect our webviews and their containers.  Small-title navigation bars or views with hidden title bars are easier to handle. The case to pay special attention to is a notched phone in landscape orientation. 
+
+How the webview handles height and width properties is impacted by inset-handling options.  
+
+    
 
 
+**contentInsetAdjustmentBehavior:**
 
+There are two options:  "never" and "always".  "never" does not adjust insets. "always" takes safe area insets into account.  
 
+If contentInsetAdjustmentBehavior = "never", fixed-position elements remain fixed, otherwise the elements will move when insets change (scrolling a large-title view will cause this.)
 
+Transition to a large title while scrolling is smoother when contentInsetAdjustmentBehavior = "always" is used. 
+
+Width/height and padding will differ depending on option.  For example, using vh/vw or %, and padding choices will depend on the inset option. See the Demo App for examples. 
+
+**viewport-fit=cover property:**
+
+The viewport-fit=cover property of the "viewport" meta tag sets contentInsetAdjustmentBehavior to "never." There are subtle differences between using this property and setting just "contentInsetAdjustmentBehavior".  "viewport-fit=cover" doesn't take effect until content is loaded.  This can affect initial conditions like title size.  contentInsetAdjustmentBehavior = "never" is set before content is loaded. The two options should be used together. Since contentInsetAdjustmentBehavior = "never" is the default, setting  viewport-fit=cover alone is sufficient.  
+  
+**safe-area-inset:**
+
+ These environment variables can be used to inset content.  For example:
+
+```javascript 
+     padding: env(safe-area-inset-top, 0px) env(safe-area-inset-left, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
+```
+ 
+ See the Demo App for examples.  
+  
+### Scrolling
+
+**Large-title views:**
+
+Transition to a large title while scrolling is smoother when contentInsetAdjustmentBehavior = "always" is used. The Demo App shows both the "always" and "never" cases.
+
+**Small-title views:**  
+
+Works with all inset options.
+
+Depending on inset options, on some devices and orientations, an unwanted horizontal scroll bar will appear.  Preventing the scroll bar appearing via css isn't always straightforward (there is an example in the Demo App). The properties “horizScrollBarInvisible” and “preventHorizScroll” will  unconditionally prevent horizontal scrolling/scrollbar appearance.     
+
+ 
 ## Tab View
 
 **Compact Size Class and TabView**
 
-There are two size classes: Regular, which you would find on a large device such as an iPad or a large iPhone in landscape, and Compact which you would find on smaller device or an iPad running multiple apps in a split screen. 
+There are two size classes: Regular and Compact, which apply to width and height and depend on device size and orientation.  Horizontally Regular you would find on a large device such as an iPad or a large iPhone in landscape, and Horizontally Compact you would find on a smaller device in portrait or landscape, or an iPad running multiple apps in a split screen.  
 
-The plug-in has the option of using a TabView for the Compact Size. The view will dynamically switch to/from a split view as the Size Class changes.  For example, when an iPhone 11 is rotated from portrait to landscape or when a second app is launched on an iPad. 
+The plug-in has the option of using a TabView for the Compact Size. The view will dynamically switch to/from a split view as the Size Class changes.  For example, when a large iPhone is rotated from portrait to landscape or when a second app shares the screen on an iPad. 
 
 
 **Regular size**
@@ -189,7 +255,9 @@ Left and right buttons on the Navigation Bar are supported. Both buttons support
 
 ## Navigation Bar Appearance
 
-Large Titles are supported in the Primary View and in the Compact Tab View .
+Large Titles can be used in any tab of a compact tab view. They can also be used in all split views (Primary, Secondary, and Supplimentary) if a TabView is used for the compact case.  If an app doesn't have a separate compact view then Large Titles are limited to the primary view unless all titles are large and never change (by scrolling, for example.)
+
+There is an option to hide the bar (the "hideNavigationBar" property).
 
 ## iOS 14 and later Methods
 
@@ -351,7 +419,7 @@ The Collection View is currently limited to the primary view: the only valid tar
 
 
 ```javascript
-// Select section one row two and center vertically 
+// Select section one, row two and center vertically 
 let section = 1;
 let row = 2;
 let scrollPosition = "centeredVertically"
@@ -375,6 +443,8 @@ Supported events:
  This is useful when an item is programmatically selected in which case the collectionView does not fire a "selected" event.
  
 
+data:  JSON
+
 | Event Data | Type | Description |
 | --- | --- | --- |
 | id | Int| event ID |   
@@ -395,7 +465,24 @@ let msg1JSON = '{"id": "' + cordova.plugins.SplitView.collectionEvents.selectedL
 cordova.plugins.SplitView.viewAction("fireCollectionEvent", ["secondary"],[msg1JSON]);
 ```
 
+**scrollBar**
 
+Hides or shows scrollbar.  This is faster and more reliable than than using web methods.  
+
+data:
+
+| option | Description |
+| --- | --- |
+| hideVert | hide vertical scroll bar |
+| showVert |  show vertical scroll bar |
+| hideHoriz |  hide horizontal scroll bar |
+| showHoriz | show horizontal scroll bar |
+                
+
+  ```javascript
+cordova.plugins.SplitView.viewAction("fireCollectionEvent", ["scrollBar"],["self"],["hideVert"]);
+```
+                  
 
 ## Event Handling
 
@@ -636,8 +723,10 @@ viewPropJSON = '{"primaryTitle":"Primary", "secondaryTitle":"Secondary","fullscr
 | horizScrollBarInvisible | Bool | makes horizontal scroll bar invisible without disabling scrolling | |
 | vertScrollBarInvisible | Bool | makes vertical scroll bar invisible without disabling scrolling | |
 | preventHorizScroll | String | Prevents  horizontal scrolling , scrollbar remains| |
+| contentInsetAdjustmentBehavior | String |Sets Inset Options| never|
+| hideNavigationBar | Bool |Hides Navigation Bar| false|
 
-
+        
 
 **primaryURL**
 
@@ -1220,6 +1309,44 @@ viewPropJSON = '{"preventHorizScroll":true }';
 ```
 
 
+**contentInsetAdjustmentBehavior**
+
+ The way in which  safe area insets are added to the adjusted content inset.
+ The importance of this property is how it affects a webview and its container. 
+   
+
+Type:   Bool
+
+The default is "never".
+
+
+| contentInsetAdjustmentBehavior | Description |
+| --- | --- |
+| never | Don't adjust insets |
+| always | Always include safe area insets|
+
+
+If "never" is selected, fixed position elements will remain fixed.  If "always" is selected, fixed elements will change position when insets change such as when the Navigation Bar title changes size on scrolling.
+
+See the "Large Titles, Insets, and Scrolling" section for additional details.
+
+```javascript
+viewPropJSON = '{"contentInsetAdjustmentBehavior":"auto" }';
+```
+
+**hideNavigationBar**
+
+ Hides the Navigation Bar
+
+Type:   Bool
+
+The default is False.
+
+```javascript
+viewPropJSON = '{"hideNavigationBar":true }';
+```
+
+
 ## Native View (Collection View) Properties 
 
 Collection View List as a Primary View is the only option currently supported.
@@ -1340,7 +1467,8 @@ Tab Bars have been both simplified and extended for 2.1.  2.1 TabBars are not co
 | tabBar | TabBar| TabBar properties |   | 
 | tabBarItems | TabBarItem| TabBar Item properties |   | 
 | tabItemsAppend | Array| Modifies selected-item message |   | 
-| selectedTabIndex | Number| set tab index | 0  | 
+| selectedTabIndex | Number| Set tab index | 0  | 
+| shouldSelectTab | Bool| Select tab without interruption | true  | 
 
 **tabBar**
 
@@ -1475,6 +1603,24 @@ The default is 0.
 ```javascript
 viewPropJSON = '{"selectedTabIndex”:1 }';
 ```
+
+
+**shouldSelectTab**
+
+Select tab without interruption if true. If false, a "barItemSelected" viewEvent is fired instead. The event handler needs to select the tab.
+This property can be used to prepare for transition or to prevent or delay item selection.
+ 
+
+Type:   Bool
+
+The default is true.
+
+```javascript
+viewPropJSON = '{"shouldSelectTab”:false }';
+```
+
+
+
 
 
 **Navigation Bar Button Properties**
