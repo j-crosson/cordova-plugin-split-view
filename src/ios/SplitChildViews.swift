@@ -34,7 +34,7 @@ public let insetAdjustmentBehavior: [String: UIScrollView.ContentInsetAdjustment
                                                                                               "always": .always,
                                                                                               "auto": .automatic]
 
-class SpViewControllerChild: CDVViewController, UIScrollViewDelegate {
+class SpViewControllerChild: CDVViewControllerI, UIScrollViewDelegate {
     var initialBackgroundColor: UIColor?
     var isReady = false //set when webview wants messages
     var queuedMessage = "" //last message sent before device ready/ init
@@ -76,7 +76,7 @@ class SpViewControllerChild: CDVViewController, UIScrollViewDelegate {
        launchView.backgroundColor = initialBackgroundColor
        view.addSubview(launchView)
 
-       let wkWebView = webViewEngine?.engineWebView as? WKWebView
+       let wkWebView = webViewEngine.engineWebView as? WKWebView
        if let scrollVw = wkWebView?.scrollView {
            scrollVw.contentInsetAdjustmentBehavior = contentInsetAdjustmentBehavior
            //No longer force this. Also set by user-specified Meta Tag (viewport-fit=cover) to ".never"
@@ -129,13 +129,13 @@ class SpViewControllerChild: CDVViewController, UIScrollViewDelegate {
     //  When fixed, this can go.
     //
     deinit {
-         let wkWebView = webViewEngine?.engineWebView as? WKWebView
+        let wkWebView = webViewEngine.engineWebView as? WKWebView
          wkWebView?.configuration.userContentController.removeScriptMessageHandler(forName: "cordova")
      }
 
     func doAction(_ splitAction: SplitViewAction, _ arg0: String, _ arg1: String ) {
         if splitAction == SplitViewAction.scrollBar {
-            let wkWebView = webViewEngine?.engineWebView as? WKWebView
+            let wkWebView = webViewEngine.engineWebView as? WKWebView
             if let scrollVw = wkWebView?.scrollView {
                 switch arg1 {
                 case "hideVert":

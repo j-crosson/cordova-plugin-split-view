@@ -32,7 +32,7 @@ class SpViewControllerCompact: SpViewControllerChild {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        let wkWebView = webViewEngine?.engineWebView as? WKWebView
+        let wkWebView = webViewEngine.engineWebView as? WKWebView
         if let scrollVw = wkWebView?.scrollView {
             scrollVw.contentInsetAdjustmentBehavior =  contentInsetAdjustmentBehavior
         }
@@ -50,7 +50,7 @@ class SpViewControllerCompact: SpViewControllerChild {
         super.viewDidAppear(animated)
         scrollEdge  = ScrollEdgeState.unset
         // force ScrollEdgeAppearance after switching from regular view
-        let wkWebView = webViewEngine?.engineWebView as? WKWebView
+        let wkWebView = webViewEngine.engineWebView as? WKWebView
         if let scrollVw = wkWebView?.scrollView {
             adjustBarScrollEdgeAppearance(scrollVw)
         }
@@ -63,7 +63,7 @@ class SpViewControllerCompact: SpViewControllerChild {
     // we handle that case here
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
         super.viewWillTransition(to: size, with: coordinator)
-        let wkWebView = webViewEngine?.engineWebView as? WKWebView
+        let wkWebView = webViewEngine.engineWebView as? WKWebView
         coordinator.animate(alongsideTransition: { _ in
             if let scrollVw = wkWebView?.scrollView {
                 self.adjustBarScrollEdgeAppearance(scrollVw)
@@ -248,7 +248,7 @@ class TabBarController2: UITabBarController, UITabBarControllerDelegate {
         // Can't reproduce the issue in newer versions of iOS, so this workaround only
         // applies to older versions.
 
-        let wkWebView = viewControllerCompact.webViewEngine?.engineWebView as? WKWebView
+        let wkWebView = viewControllerCompact.webViewEngine.engineWebView as? WKWebView
         if let sview = wkWebView?.scrollView {
             if sview.isDragging || sview.isDecelerating {
                 //stop scroll

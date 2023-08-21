@@ -11,6 +11,10 @@ The plugin creates a split view and the child views, supplying each with a WebVi
 
 ## What’s New
 
+## 2.4.1
+
+* Update for Cordova iOS 7.0
+
 ## 2.4
 
 * New inset options
