@@ -121,6 +121,20 @@ class SpViewControllerCompact: SpViewControllerChild {
     }
 }
 
+@available(iOS 14.0, *)
+    let sysItem1: [String: UITabBarItem.SystemItem] = ["bookmarks": .bookmarks,
+                                                      "contacts": .contacts,
+                                                      "downloads": .downloads,
+                                                      "favorites": .favorites,
+                                                      "featured": .featured,
+                                                      "history": .history,
+                                                      "more": .more,
+                                                      "mostRecent": .mostRecent,
+                                                      "mostViewed": .mostViewed,
+                                                      "recents": .recents,
+                                                      "search": .search,
+                                                      "topRated": .topRated]
+    
 class TabBarController2: UITabBarController, UITabBarControllerDelegate {
     var viewControllerCompact: SpViewControllerCompact
     var secondaryVC: SpViewControllerDetail
@@ -132,7 +146,8 @@ class TabBarController2: UITabBarController, UITabBarControllerDelegate {
     // should be combined -- but controller array is needed, so...
     var tabViewControllers: [UINavigationController] = []
     var navBarTitles: [String] = []
-
+    private var  currentIndex:Int = 0
+    
     init(_ viewControllerDetail: SpViewControllerDetail, _ compactURL: String?, properties: String? ) {
         secondaryVC = viewControllerDetail
         if let jsonAg = properties {
@@ -162,7 +177,7 @@ class TabBarController2: UITabBarController, UITabBarControllerDelegate {
         if let newIndex = compactProperties.viewProps.selectedTabIndex {
             if newIndex > -1  &&  newIndex < tabViewControllers.count {
                 selectedIndex = newIndex
-                moveView(tabViewControllers[newIndex], index: newIndex)
+                moveView( index: newIndex)
             }
         }
         if let tabBarBackground = compactProperties.viewProps.tabBar?.tabBarAppearance?.background {
@@ -202,21 +217,54 @@ class TabBarController2: UITabBarController, UITabBarControllerDelegate {
         //didselect is not called if tab is selected programmatically
         if index >= 0 && index != selectedIndex &&  index < tabViewControllers.count {
             selectedIndex = index
-            moveView(tabViewControllers[index], index: index)
+            moveView( index: index)
         }
     }
 
-    func moveView(_ newCtl: UINavigationController, index: Int) {
-        if usesCompactViewController {
-            let newV: [UIViewController] = [viewControllerCompact]
-            newCtl.setViewControllers(newV, animated: false)
-            newCtl.navigationBar.topItem?.title = navBarTitles[index]
-        } else {
-            let newV: [UIViewController] = [secondaryVC]
-            newCtl.setViewControllers(newV, animated: false)
+    // The approach used to move view controllers around might seem to be overcomplicated
+    // (the approach that worked for years was simple) but after iOS17 the old approach
+    // produced a display artifact (sometimes large titles would display as small for a second or so)
+    // There were simple fixes of quesdtionable reliability but we finally settled on this one.
+    // If there is a better way, we would like to hear about it...
+    
+    // Sets individual Tabbar item
+    //
+    // This is necessary to support the post-iOS 16 approach to moving view controllers
+    //
+    func setTabItem( viewController: UINavigationController, index: Int) {
+        if #available(iOS 14.0, *) {
+            if let barItems = compactProperties.viewProps.tabBarItems {
+                viewController.isNavigationBarHidden = barItems[index].hideNavBar ?? true
+
+                if barItems[index].systemItem != nil {
+                    if let systItem = sysItem1[barItems[index].systemItem ?? ""] {
+                        viewController.tabBarItem = UITabBarItem(tabBarSystemItem: systItem, tag: barItems[index].tag ?? 0)
+                    }
+                } else {
+                    viewController.tabBarItem = UITabBarItem(title: barItems[index].title,
+                                                     image: newImage(image: barItems[index].image),
+                                                     tag: barItems[index].tag ?? 0)
+                }
+            viewController.navigationBar.prefersLargeTitles = compactProperties.setNavBarAppearance(viewController,
+                                                                                                appearance: barItems[index].navBar?.appearance)
+                navBarTitles.append( barItems[index].navBar?.title ?? "")
+            }
         }
     }
-
+    
+    func moveView( index: Int) {
+        let newV: [UIViewController] = [viewControllerCompact]
+        
+        tabViewControllers[index] = UINavigationController()
+        setTabItem(viewController: tabViewControllers[index] , index: index)
+        viewControllers?[currentIndex] = UIViewController()
+        tabViewControllers[currentIndex].viewControllers = [UIViewController()]
+        setViewControllers(tabViewControllers,animated: false)
+        tabViewControllers[index].setViewControllers(newV, animated: false)
+        tabViewControllers[index].navigationBar.topItem?.title = navBarTitles[index]
+        currentIndex = index
+    }
+  
     func tabBarController(_ tabBarController: UITabBarController,
                           shouldSelect viewController: UIViewController) -> Bool {
         guard let index = viewControllers?.firstIndex(of: viewController) else {
@@ -267,7 +315,7 @@ class TabBarController2: UITabBarController, UITabBarControllerDelegate {
 
     func tabBarController(_ tabBarController: UITabBarController, didSelect viewController: UIViewController) {
         if let vcc = viewController as? UINavigationController {
-            moveView(vcc, index: selectedIndex)
+            moveView(index: selectedIndex)
             let tag = vcc.tabBarItem.tag
             let newitem = String(tag)
             viewControllerCompact.eventHandle(ViewEvents.tabBarEvent, data: newitem)

@@ -124,15 +124,6 @@ class SpViewControllerChild: CDVViewControllerI, UIScrollViewDelegate {
         }
     }
 
-    //
-    //  Workaround for a leak.
-    //  When fixed, this can go.
-    //
-    deinit {
-        let wkWebView = webViewEngine.engineWebView as? WKWebView
-         wkWebView?.configuration.userContentController.removeScriptMessageHandler(forName: "cordova")
-     }
-
     func doAction(_ splitAction: SplitViewAction, _ arg0: String, _ arg1: String ) {
         if splitAction == SplitViewAction.scrollBar {
             let wkWebView = webViewEngine.engineWebView as? WKWebView

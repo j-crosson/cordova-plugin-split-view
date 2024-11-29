@@ -5,11 +5,20 @@
 
 ## iOS Split View
 
+Split View provides native split-view framing for webviews as well as tab-based framing for compact displays. This gives Cordova apps a native look and behavior that is difficult to fake using only Javascript.
+
 An iOS split view is a container that manages two or three child columns. 
-The plugin creates a split view and the child views, supplying each with a WebView. Child WebViews can manage the split view and communicate with each other. 
+The plugin creates a split view and the child views, supplying each with a WebView. Child WebViews can manage the split view and communicate with each other. Tabs are an option for compact displays.
 
 
 ## What’s New
+
+## 2.4.2
+
+* Bug fixes and updates for latest versions of iOS and Cordova.
+* Collection View updated to support View-Json demo.
+
+Newer versions of iOS have far fewer quirks than the minimum supported version. Be sure to test apps with the app's minimum supported version.
 
 ## 2.4.1
 
