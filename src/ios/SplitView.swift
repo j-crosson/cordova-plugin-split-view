@@ -43,16 +43,15 @@ enum CollectionEvents: String {
 
     @objc(showView:)
     func showView(command: CDVInvokedUrlCommand) {
-        var pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: "Plugin succeeded")
+        var pluginResult = CDVPluginResult(status: CDVCommandStatus.ok, messageAs: "Plugin succeeded")
         var viewsProperties =  [String?]()
         if #available(iOS 14.0, *) {
             for inx in 0...command.arguments.count-1 {
                 viewsProperties.append(command.arguments[inx] as? String)
             }
             var viewMask: UIInterfaceOrientationMask = .all
-            if let CDVController = viewController as? CDVViewController {
-                viewMask = CDVController.supportedInterfaceOrientations
-            }
+            viewMask = viewController.supportedInterfaceOrientations
+            
             let splitViewController = RtViewController( viewProperties: viewsProperties, splitViewMask: viewMask)
             if splitViewController.isRoot {
                 viewController.view.window?.rootViewController? = splitViewController
@@ -60,7 +59,7 @@ enum CollectionEvents: String {
                     viewController.present(splitViewController, animated: true, completion: nil)
             }
         } else {
-            pluginResult = CDVPluginResult(status: CDVCommandStatus_ERROR, messageAs: "iOS 14 Required")
+            pluginResult = CDVPluginResult(status: CDVCommandStatus.error, messageAs: "iOS 14 Required")
         }
         commandDelegate!.send(pluginResult, callbackId: command.callbackId)
     }
@@ -188,7 +187,7 @@ enum CollectionEvents: String {
     viewController.present(splitViewController, animated: isAnimated, completion: nil)
 
     // Future versions can fail so we support succeed.
-    let pluginResult = CDVPluginResult(status: CDVCommandStatus_OK, messageAs: "Plugin succeeded")
+        let pluginResult = CDVPluginResult(status: CDVCommandStatus.ok, messageAs: "Plugin succeeded")
     // Send the function result back to Cordova.
     commandDelegate!.send(pluginResult, callbackId: command.callbackId)
   }

@@ -5,13 +5,21 @@
 
 ## iOS Split View
 
-Split View provides native split-view framing for webviews as well as tab-based framing for compact displays. This gives Cordova apps a native look and behavior that is difficult to fake using only Javascript.
+Split View provides native split-view framing for webviews as well as tab-based framing for compact displays. This gives Cordova apps a native look and behavior that is difficult to fake using only HTML and Javascript.
+
+With this plugin, there is no need to change HTML/javascript content to support iOS 26: the native framing will automatically  adapt to iOS 26 or iOS 18 and below.
 
 An iOS split view is a container that manages two or three child columns. 
 The plugin creates a split view and the child views, supplying each with a WebView. Child WebViews can manage the split view and communicate with each other. Tabs are an option for compact displays.
 
 
 ## What’s New
+
+## 2.4.3
+
+The only important change is a fix for a memory leak in tabs.  An update is not necessary if you're not using tabs.  
+
+Check out the demo for changes that make app behavior more consistant pre and post iOS 26 (a "preferredDisplayMode" of "oneOverSecondary", replacing the previous option). These changes don't require a new version of the plugin. An upcoming version of the plugin will offer options for apps targeting iOS 26 and later. 
 
 ## 2.4.2
 

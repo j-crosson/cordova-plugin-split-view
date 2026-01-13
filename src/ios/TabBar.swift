@@ -8,6 +8,12 @@ import Foundation
 import UIKit
 import WebKit
 
+class UINavigationControllerTab: UINavigationController {
+    deinit {
+        tabBarItem = nil
+    }
+}
+
 class SpViewControllerCompact: SpViewControllerChild {
     enum ScrollEdgeState {
         case unset, isEdge, notEdge
@@ -137,19 +143,16 @@ class SpViewControllerCompact: SpViewControllerChild {
     
 class TabBarController2: UITabBarController, UITabBarControllerDelegate {
     var viewControllerCompact: SpViewControllerCompact
-    var secondaryVC: SpViewControllerDetail
-    var usesCompactViewController = true  //only option for this version
     var compactProperties = ViewProps()
     var lockBackground = false
     var shouldSelect = true
 
     // should be combined -- but controller array is needed, so...
-    var tabViewControllers: [UINavigationController] = []
+    var tabViewControllers: [UINavigationControllerTab] = []
     var navBarTitles: [String] = []
     private var  currentIndex:Int = 0
     
-    init(_ viewControllerDetail: SpViewControllerDetail, _ compactURL: String?, properties: String? ) {
-        secondaryVC = viewControllerDetail
+    init(properties: String? ) {
         if let jsonAg = properties {
             if compactProperties.decodeProperties(json: jsonAg) {
             }
@@ -160,6 +163,7 @@ class TabBarController2: UITabBarController, UITabBarControllerDelegate {
         viewControllerCompact = SpViewControllerCompact(backgroundColor: compactProperties.backgroundColor,
                                                         page: compactProperties.viewProps.compactURL ?? PluginDefaults.compactURL)
         super.init(nibName: nil, bundle: nil)
+
         viewControllerCompact.setScrollProperties(horizBarInvisible: compactProperties.viewProps.horizScrollBarInvisible ?? false,
                                                   vertBarInvisible: compactProperties.viewProps.vertScrollBarInvisible ?? false,
                                                   noHorizScroll: compactProperties.viewProps.preventHorizScroll ?? false)
@@ -231,7 +235,7 @@ class TabBarController2: UITabBarController, UITabBarControllerDelegate {
     //
     // This is necessary to support the post-iOS 16 approach to moving view controllers
     //
-    func setTabItem( viewController: UINavigationController, index: Int) {
+    func setTabItem( viewController: UINavigationControllerTab, index: Int) {
         if #available(iOS 14.0, *) {
             if let barItems = compactProperties.viewProps.tabBarItems {
                 viewController.isNavigationBarHidden = barItems[index].hideNavBar ?? true
@@ -253,15 +257,14 @@ class TabBarController2: UITabBarController, UITabBarControllerDelegate {
     }
     
     func moveView( index: Int) {
-        let newV: [UIViewController] = [viewControllerCompact]
+        let newV1: [UIViewController] = [ viewControllerCompact]
         
-        tabViewControllers[index] = UINavigationController()
+        tabViewControllers[currentIndex].setViewControllers([], animated: false)
+        tabViewControllers[index] = UINavigationControllerTab()
         setTabItem(viewController: tabViewControllers[index] , index: index)
-        viewControllers?[currentIndex] = UIViewController()
-        tabViewControllers[currentIndex].viewControllers = [UIViewController()]
-        setViewControllers(tabViewControllers,animated: false)
-        tabViewControllers[index].setViewControllers(newV, animated: false)
+        tabViewControllers[index].setViewControllers(newV1, animated: false)
         tabViewControllers[index].navigationBar.topItem?.title = navBarTitles[index]
+        setViewControllers(tabViewControllers,animated: false)
         currentIndex = index
     }
   
@@ -314,7 +317,7 @@ class TabBarController2: UITabBarController, UITabBarControllerDelegate {
     }
 
     func tabBarController(_ tabBarController: UITabBarController, didSelect viewController: UIViewController) {
-        if let vcc = viewController as? UINavigationController {
+        if let vcc = viewController as? UINavigationControllerTab {
             moveView(index: selectedIndex)
             let tag = vcc.tabBarItem.tag
             let newitem = String(tag)
@@ -351,7 +354,7 @@ class TabBarController2: UITabBarController, UITabBarControllerDelegate {
 
             if let barItems = compactProperties.viewProps.tabBarItems {
                 tabViewControllers = barItems.map {
-                    let viewController = UINavigationController()
+                    let viewController = UINavigationControllerTab()
                     viewController.isNavigationBarHidden = $0.hideNavBar ?? true
 
                     if $0.systemItem != nil {
@@ -372,7 +375,8 @@ class TabBarController2: UITabBarController, UITabBarControllerDelegate {
         }
 
         let newV: [UIViewController] = [viewControllerCompact]
-        if let  cvc = tabViewControllers[0] as? UINavigationController {
+        if !tabViewControllers.isEmpty {
+            let  cvc = tabViewControllers[0]
             cvc.setViewControllers(newV, animated: false)
             cvc.navigationBar.topItem?.title = navBarTitles[0]
         }

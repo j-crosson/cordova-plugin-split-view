@@ -130,7 +130,7 @@ enum SplitViewAction {
                         hide(childView)
                     }
                 } else if $2 == SplitViewAction.setProperties {
-                    rootProperties.decodeProperties(json: $0)
+                    _ = rootProperties.decodeProperties(json: $0)
                     setSplitViewProperties()
                 } else if $2 == SplitViewAction.dismiss {
                     dismiss(animated: true, completion: nil)
@@ -186,11 +186,9 @@ enum SplitViewAction {
             setViewController(primaryViewController, for: .primary)
             setViewController(secondaryViewController, for: .secondary)
             if usesCompact {
-                if let vcd = viewControllerDetail {
-                compactTabBarController =  TabBarController2(vcd, "xx", properties: viewProperties[4])
+                compactTabBarController =  TabBarController2( properties: viewProperties[4])
                 setViewController(compactTabBarController, for: .compact)
                 compactTabBarController?.viewControllerCompact.webViewMessage = sendMessage
-                }
             }
             if !isDouble {
                 setViewController(supplementaryViewController, for: .supplementary)
