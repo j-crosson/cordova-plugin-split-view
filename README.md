@@ -15,11 +15,17 @@ The plugin creates a split view and the child views, supplying each with a WebVi
 
 ## What’s New
 
+## 2.4.4
+
+* Transparent background option for Webviews. For iOS26 and later Liquid Glass effects.
+* Additional background/splashscreen options.
+
+Check out the Demo App to see the iOS 26 transparent background option as well as embedding using the new background/splashscreen options.
+ - https://github.com/j-crosson/cordova-plugin-split-view-demo
+
 ## 2.4.3
 
 The only important change is a fix for a memory leak in tabs.  An update is not necessary if you're not using tabs.  
-
-Check out the demo for changes that make app behavior more consistant pre and post iOS 26 (a "preferredDisplayMode" of "oneOverSecondary", replacing the previous option). These changes don't require a new version of the plugin. An upcoming version of the plugin will offer options for apps targeting iOS 26 and later. 
 
 ## 2.4.2
 
@@ -164,7 +170,7 @@ The plugin sets the version of Swift to 4.0, the minimum needed.  Bumping the ve
 
 ## Quirks
 
-The plug-in hides quirky behavior as much as possible but there are issues that resist being hidden.
+The plug-in hides quirky behavior as much as possible but there are issues that resist being hidden. Many of the following quirks are not present in iOS26. If your app supports earlier iOS versions, be sure to test these versions too.  
 
 Large titles, insets, and Scroll Edge behavior are trouble spots.
 
@@ -248,9 +254,9 @@ Depending on inset options, on some devices and orientations, an unwanted horizo
 
 **Compact Size Class and TabView**
 
-There are two size classes: Regular and Compact, which apply to width and height and depend on device size and orientation.  Horizontally Regular you would find on a large device such as an iPad or a large iPhone in landscape, and Horizontally Compact you would find on a smaller device in portrait or landscape, or an iPad running multiple apps in a split screen.  
+There are two size classes: Regular and Compact, which apply to width and height and depend on device size and orientation.  Horizontally Regular you would find on a large device such as an iPad or a large iPhone in landscape, and Horizontally Compact you would find on a smaller device in portrait or landscape, or an iPad app in a small window or a pre-iOS26 iPad running multiple apps in a split screen.  
 
-The plug-in has the option of using a TabView for the Compact Size. The view will dynamically switch to/from a split view as the Size Class changes.  For example, when a large iPhone is rotated from portrait to landscape or when a second app shares the screen on an iPad. 
+The plug-in has the option of using a TabView for the Compact Size. The view will dynamically switch to/from a split view as the Size Class changes.  For example, when a large iPhone is rotated from portrait to landscape or when an iPad window is resized or a second app shares the screen on a pre-iOS26 iPad. 
 
 
 **Regular size**
@@ -454,7 +460,7 @@ cordova.plugins.SplitView.viewAction("setCollectionProperty", ["primary"],[msgJS
 
 **fireCollectionEvent**
 
-Fires a colloctionView event
+Fires a collectionView event
 
 Supported events:
 
@@ -737,6 +743,8 @@ viewPropJSON = '{"primaryTitle":"Primary", "secondaryTitle":"Secondary","fullscr
 | backgroundColor | Array | Sets primary view background color that is displayed during WebView load, overrides light/dark | |
 | backgroundColorLight | Array | Sets primary view background color that is displayed during WebView load, in light mode | |
 | backgroundColorDark | Array | Sets primary view background color that is displayed during WebView load, in dark mode | |
+| useLaunchScreenAsBackground | Bool |Uses launch storyboard during WebView load | false|
+| showInitialSplashScreen | Bool |If useLaunchScreenAsBackground is true, show Splash Screen | true|
 | tintColor | Array | Sets Navigation Bar  tint color (bar text etc.) | |
 | barTintColor | Array | Sets Navigation Bar bar tint color (bar background) | |
 | topColumnForCollapsingTo ProposedTopColumn | String | Provides the column to display after the split view interface collapses | |
@@ -872,8 +880,8 @@ viewPropJSON = '{"usesCompact":true }';
 **fullscreen**
 
 If SplitView is presented modally—the default—make full screen.  
-This allows return to to the startup view programmatically but without the appearance of a modal view. 
-If “makeRoot” is “true”,  “fullscreen” has no effect. 
+This allows return to to the startup view programmatically but without the appearance of a modal view.  On an iOS26 and later iPad, "fullscreen" is equivalent to "full window": the view will fill the current window not the entire screen. 
+If “makeRoot” is “true”,  “fullscreen” has no effect, the SplitView will always be full screen/window. 
 
 Type:   Bool
 
@@ -1166,7 +1174,7 @@ viewPropJSON = '{"backgroundColor":[1,255,3,1] }';
 
 **backgroundColorLight**
 
-Sets primary view background color that is displayed during WebView load, if mode is light.
+Sets view background color that is displayed during WebView load, if mode is light.
 
 
 Type:   Array
@@ -1184,7 +1192,7 @@ viewPropJSON = '{"backgroundColorLight”:[228,228,228,1] }';
 
 **backgroundColorDark**
 
-Sets primary view background color that is displayed during WebView load, if mode is dark.
+Sets view background color that is displayed during WebView load, if mode is dark.
 
 
 Type:   Array
@@ -1201,9 +1209,39 @@ Alpha   transparency value   0-1
 viewPropJSON = '{"backgroundColorDark”:[30,30,30,1] }';
 ```
 
+
+
+**useLaunchScreenAsBackground**
+
+Uses launch storyboard during WebView load.
+
+Type:   Bool
+
+The default is False, use backgroundColor(Light/Dark).
+
+```javascript
+viewPropJSON = '{"useLaunchScreenAsBackground":true }';
+```
+
+**showInitialSplashScreen**
+
+If useLaunchScreenAsBackground is true, show Splash Screen. If false, nothing will show.   
+
+This is useful in the embedding case, where you want to show a splash screen independent of individual columns.
+
+Type:   Bool
+
+The default is True.
+
+
+```javascript
+viewPropJSON = '{"showInitialSplashScreen":false }';
+```
+
+
 **tintColor**
 
-Sets Navigation Bar  tint color (bar text etc.) 
+Sets Navigation Bar  tint color (bar text etc.) pre-iOS26
 
 Type:   Array
 
@@ -1224,7 +1262,7 @@ See Apple UISplitViewController Documentation for additional info.
 
 **barTintColor**
 
-Sets Navigation Bar bar tint color (bar background)  
+Sets Navigation Bar bar tint color (bar background)  pre-iOS26
 
 Type:   Array
 
@@ -1506,7 +1544,7 @@ viewPropJSON = ''{ "tabBar": {"tabBarAppearance": {"background": "transparent", 
 
 **tabBarAppearance**
 
-Appearance options
+Appearance options -- ignored iOS26 and later
 
 | Property | Type | Description | Default |
 | --- | --- | --- | --- | 
@@ -2026,110 +2064,7 @@ viewPropJSON = '{"attributes": ["destructive"]}';
 
 Embeds plugin in a native app.  Using the Embedding Option with the plugin creates a hybrid app and eliminates the startup delay of creating an extra web view. 
 
-The Embedding Option requires a native app into which Cordova is embedded.  See the Embedding Demo for an example.  See "Embedding Option — Classic Split View" to embed pre-iOS 14 classic views.
-
-
-
-## EmbedSplitColumn
-
-Create and (if needed)  retain a reference to  EmbedSplitColumn. 
-
-```objective-c
-EmbedSplitColumn * es = [[EmbedSplitColumn alloc] init];
-```
-
-### showView
-
-```swift
-func showView(_ appWindow: UIWindow)
-```
-**Summary**
-
-shows Split View  Controller as root view controller  of appWindow
-
-**Parameters**
-| Param | Description |
-| --- | --- |
-| appWindow | application window for split view |
-
-
-##  Properties
-
-
-**splitViewJSON**
-**primaryViewJSON**
-**secondaryViewJSON**
-**supplementaryViewJSON**
-**compactViewJSON**
-
-```swift
-
-splitViewJSON: String 
-primaryViewJSON: String 
-secondaryViewJSON: String 
-supplementaryViewJSON: String 
-compactViewJSON: String 
-```
-
-Post-iOS 14 embedding sets properties via a JSON string.   See Javascript Properties for details.
-
-
-```objective-c
-   EmbedSplitColumn.splitViewJson = @"{\"isEmbedded\":true,\"primaryTitle\":\"Primary\",\"primaryURL\":\"indexTriple.html\",\"topColumnForCollapsingToProposedTopColumn\":\"primary\", \"secondaryTitle\":\"Secondary\",\"secondaryURL\":\"indexTriple2.html\", \"Style\":\"tripleColumn\",\"backgroundColorLight\":[228,228,228,1],\"backgroundColorDark\":[30,30,30,1], \"showsSecondaryOnlyButton\":true,\"preferredDisplayMode\":\"twoBesideSecondary\",\"supplementaryTitle\":\"Supplementary\"}";
-    [es showView:self.window ];
-```
-
-
-
-
-**splitViewController** 
-
-```swift
-var splitViewController: RtViewController 
-```
-
-RtViewController is the root view controller which exposes subviews for  modification above and beyond what the Javascript API offers.
-
-By default, all orientations are supported.  RtViewController accepts an optional UIInterfaceOrientationMask argument for other than default orientaion support. 
-
-
-To demo the embedded Split View, in the SplitDemo file AppDelegate.m comment out the current code and use the code that is currently commented out.  Post-iOS 14 multi-column Demo for the new stuff, Classic for the old.   A real app would be structured differently: the embedding demo was constructed to fit in a Cordova-generated app. 
-
-Here’s the demo code that launches the iOS 14 embedded split view:
-
-
-```objective-c
-
-
-//
-// Post-iOS 14 multi-column Demo
-//
-#import "AppDelegate.h"
-#import "MainViewController.h"
-#import "SplitDemo-Swift.h"
-
-@implementation AppDelegate
-
-@synthesize window;
-
-- (BOOL)application:(UIApplication*)application didFinishLaunchingWithOptions:(NSDictionary*)launchOptions
-{
-    CGRect screenBounds = [[UIScreen mainScreen] bounds];
-
-    self.window = [[UIWindow alloc] initWithFrame:screenBounds];
-    self.window.autoresizesSubviews = YES;
-
-    EmbedSplitColumn * es = [[EmbedSplitColumn alloc] init];
-     
-    es.splitViewJson = @"{\"isEmbedded\":true,\"primaryTitle\":\"Primary\",\"primaryURL\":\"indexTriple.html\",\"topColumnForCollapsingToProposedTopColumn\":\"primary\", \"secondaryTitle\":\"Secondary\",\"secondaryURL\":\"indexTriple2.html\", \"Style\":\"tripleColumn\",\"backgroundColorLight\":[228,228,228,1],\"backgroundColorDark\":[30,30,30,1], \"showsSecondaryOnlyButton\":true,\"preferredDisplayMode\":\"twoBesideSecondary\",\"supplementaryTitle\":\"Supplementary\"}";
-    [es showView:self.window ];
-    
-    return YES;
-}
-
-@end
-
-```
+The Embedding Option requires an iOS 14 or later native app into which Cordova is embedded.  See the Demo App Embedding Demo for an example.  Embedding a Classic Split View still works but is not supported.
 
 
 
@@ -2441,250 +2376,3 @@ var onSelected = function ( itemString) {
 
 cordova.plugins.SplitView.selected= onSelected;
 ```
-
-
-
-## Embedding Option — Classic Split View
-
-Embed plugin in a native app.  Using the Embedding Option with the plugin creates a hybrid app and eliminates the startup delay of creating an extra web view. 
-Embedded split view classic only supports a two-webview split view.  The tableview option is not supported.  
-
-The Embedding Option requires a native app into which Cordova is embedded.  See the demo for an example.
-
-### show
-
-```swift
-func show(_ appWindow: UIWindow)
-```
-**Summary**
-
-shows Split View  Controller as root view controller  of appWindow
-
-**Parameters**
-| Param | Description |
-| --- | --- |
-| appWindow | application window for split view |
-
-***
-In the non-embedded  version,  the initial background colors of the primary and secondary views, the colors briefly displayed during WebView load,  are set by the parent WebView/Media Query.  Since the embedded case doesn’t have a parent WebView, the plugin determines light/dark mode and chooses the supplied light or dark color.  Versions of iOS that don’t support dark mode will default to light. 
-
-### setPrimaryBackgroundColor
-
-```swift
-func setPrimaryBackgroundColor(_ light: UIColor, _ dark: UIColor) 
-```
-**Summary**
-
-sets primary view background color that is displayed during WebView load. 
-
-**Parameters**
-| Param | Description |
-| --- | --- |
-| light | background color in light mode |
-| dark | background color in dark mode |
-
-### setSecondaryBackgroundColor
-
-```swift
-func setSecondaryBackgroundColor(_ light: UIColor, _ dark: UIColor)
-```
-
-**Summary**
-
-sets secondary background color that is displayed during WebView load. 
-
-**Parameters**
-| Param | Description |
-| --- | --- |
-| light | background color in light mode |
-| dark | background color in dark mode |
-
-***
-
-### Properties
-
-**primaryURL**
-
-URL of Primary View content.
-
-```swift
-var primaryURL: String
-```
-
-  The default is “index1.html”
-
-```swift
-    embedSplit.primaryURL = @"index1.html”;   //objective-c
-    embedSplit.primaryURL= "index1.html"      // swift
-```
-  
-**secondaryURL**
-
-URL of Secondary View content.
-
-```swift
- var secondaryURL: String
-```
-
-The default is “index2.html”
-
-```swift
-    embedSplit.secondaryURL = @"index2.html”;   //objective-c
-    embedSplit.secondaryURL= "index2.html"      // swift
-```
-
-**primaryTitle**
-
-Title of primary view.
-
-```swift
- var primaryTitle: String
-```
-
-```swift
-    embedSplit.primaryTitle = @"Primary";   //objective-c
-    embedSplit.primaryTitle = "Primary"     // swift
-```
-
-**secondaryTitle**
-
-Title of secondary view.
-
-```swift
-var secondaryTitle: String
-```
-
-```swift
-    embedSplit.secondaryTitle = @"Secondary";   //objective-c
-    embedSplit.secondaryTitle = "Secondary"     // swift
-```
-
-**leftButtonTitle**
-
-Title of left button.
-If a title is not provided, the button is not shown.
-
-```swift
-var leftButtonTitle: String
-```
-
-```swift
-    embedSplit.leftButtonTitle = @“Left”;   //objective-c
-    embedSplit.leftButtonTitle = “Left”     // swift
-```
-
-**rightButtonTitle**
-
-Title of right button.
-If a title is not provided, the button is not shown.
-
-```swift
-var rightButtonTitle: String
-```
-
-```swift
-    embedSplit.rightButtonTitle = @“Right”;   //objective-c
-    embedSplit.rightButtonTitle = “Right”     // swift
-```
-***
-The Width properties are handled automatically by iOS unless overridden by the following properties:
-***
-
-**primaryColumnWidthfraction**
-
-```swift
-var primaryColumnWidthfraction: CGFloat 
-```
-
-Preferred relative width of the primary view controller’s content
-See Apple’s docs for details
-
-```swift
-    embedSplit.primaryColumnWidthfraction = 0.5;   //objective-c
-    embedSplit.primaryColumnWidthfraction = 0.5    // swift
-```
-
-**minimumPrimaryColumnWidth**
-
-```swift
-var minimumPrimaryColumnWidth: CGFloat 
-```
-
-In points, the minimum width for the primary view controller’s content
-See Apple’s docs for details
-
-```swift
-    embedSplit.minimumPrimaryColumnWidth = 200.0;   //objective-c
-    embedSplit.minimumPrimaryColumnWidth = 200.0    // swift
-```
-
-**maximumPrimaryColumnWidth**
-
-```swift
-var maximumPrimaryColumnWidth: CGFloat
-```
-
-In points, the maximum width for the primary view controller’s content
-See Apple’s docs for details
-
- ```swift
-     embedSplit.maximumPrimaryColumnWidth = 200.0;   //objective-c
-     embedSplit.maximumPrimaryColumnWidth = 200.0    // swift
- ```
-
-***
-
-**showDisplayModeButtonItem**
-
-```swift
-var showDisplayModeButtonItem: Bool
-```
-
-Show button that changes the split view controller display mode 
-
-Default is TRUE
-
-```swift
-    embedSplit.showDisplayModeButtonItem = false;   //objective-c
-    embedSplit.showDisplayModeButtonItem = false        // swift
-```
-
-
-
-To demo the Split View, in the SplitView Demo file AppDelegate.m comment out the current code and use the classic-view code that is currently commented out. A real app would be structured differently: the embedding demo was constructed to fit in a Cordova-generated app. 
-
-Here’s the demo code that launches the classic embedded split view:
-
-
-```objective-c
-
-#import "AppDelegate.h"
-#import "MainViewController.h"
-#import "SplitDemo-Swift.h"
-
-@implementation AppDelegate
-
-@synthesize window;
-
-- (BOOL)application:(UIApplication*)application didFinishLaunchingWithOptions:(NSDictionary*)launchOptions
-{
-    CGRect screenBounds = [[UIScreen mainScreen] bounds];
-
-    self.window = [[UIWindow alloc] initWithFrame:screenBounds];
-    self.window.autoresizesSubviews = YES;
-
-    EmbedSplit * es = [[EmbedSplit alloc] init];
-    UIColor *colorLight = [UIColor colorWithRed:0.894 green:0.894 blue:0.894 alpha:1];
-    UIColor *colorDark = [UIColor colorWithRed:0.12 green:0.12 blue:0.12 alpha:1];
-    [es setPrimaryBackgroundColor:colorLight :colorDark];
-    [es setSecondaryBackgroundColor:colorLight :colorDark];
-    es.primaryTitle = @"Primary";
-    es.secondaryTitle = @"Secondary";
-    [es show:self.window ];
-    
-    return YES;
-}
-
-@end
-```
-
